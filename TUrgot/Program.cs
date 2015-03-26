@@ -15,7 +15,11 @@ namespace TUrgot
     {
         public const string ChampName = "Urgot";
         public static Orbwalking.Orbwalker Orbwalker;
-        public static Obj_AI_Hero Player;
+
+        public static Obj_AI_Hero Player
+        {
+            get { return ObjectManager.Player; }
+        }
         public static List<Spell> SpellList = new List<Spell>();
         public static Spell Q, Q2, W, E;
         public static SpellDataInst Ignite;
@@ -29,9 +33,7 @@ namespace TUrgot
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            Player = ObjectManager.Player;
-
-            if (Player.BaseSkinName != ChampName)
+            if (Player.ChampionName != ChampName)
             {
                 return;
             }
@@ -39,11 +41,11 @@ namespace TUrgot
             Q = new Spell(SpellSlot.Q, 1000);
             Q2 = new Spell(SpellSlot.Q, 1200);
             W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 900);
+            E = new Spell(SpellSlot.E, 1100);
 
-            Q.SetSkillshot(0.267f, 60f, 1600f, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.2667f, 60f, 1600f, true, SkillshotType.SkillshotLine);
             Q2.SetSkillshot(0.3f, 60f, 1800f, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.283f, 0f, 1750f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.2658f, 120f, 1500f, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(Q2);
@@ -100,36 +102,37 @@ namespace TUrgot
             Menu.AddToMainMenu();
 
             Drawing.OnDraw += Drawing_OnDraw;
-            Game.OnGameUpdate += Game_OnGameUpdate;
-            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            Game.OnUpdate += Game_OnUpdate;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+
             Game.PrintChat("Trees" + ChampName + " loaded!");
         }
 
-        private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        private static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender,
+            Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (!Menu.Item("Interrupt").GetValue<bool>() || unit == null ||
-                !unit.IsValidTarget(400 + 150 * Player.Spellbook.GetSpell(SpellSlot.R).Level) ||
-                spell.DangerLevel < InterruptableDangerLevel.High)
+            if (!Menu.Item("Interrupt").GetValue<bool>() ||
+                !sender.IsValidTarget(400 + 150 * Player.Spellbook.GetSpell(SpellSlot.R).Level) ||
+                args.DangerLevel < Interrupter2.DangerLevel.High)
             {
                 return;
             }
 
-            Player.Spellbook.CastSpell(SpellSlot.R, unit);
+            Player.Spellbook.CastSpell(SpellSlot.R, sender);
         }
 
-        private static void Game_OnGameUpdate(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (Player.IsDead)
             {
                 return;
             }
 
-            if (Menu.Item("LaneClearActive").GetValue<KeyBind>().Active && !IsManaLow())
+            if (Menu.Item("LaneClearActive").IsActive() && !IsManaLow())
             {
                 LaneClear();
                 return;
             }
-
 
             CastLogic();
         }
@@ -140,7 +143,7 @@ namespace TUrgot
 
             foreach (var circle in draw.Where(circle => circle.Active))
             {
-                Utility.DrawCircle(Player.Position, circle.Radius, circle.Color);
+                Render.Circle.DrawCircle(Player.Position, circle.Radius, circle.Color);
             }
         }
 
@@ -153,10 +156,11 @@ namespace TUrgot
 
             var unit =
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .First(
+                    .FirstOrDefault(
                         minion =>
+                            MinionManager.IsMinion(minion) &&
                             minion.IsValidTarget(minion.HasBuff("urgotcorrosivedebuff", true) ? Q2.Range : Q.Range) &&
-                            minion.Health < Player.GetDamageSpell(minion, SpellSlot.Q).CalculatedDamage);
+                            minion.Health <= Q.GetDamage(minion));
             if (unit != null)
             {
                 CastQ(unit, "LaneClear");
@@ -168,14 +172,12 @@ namespace TUrgot
             SmartQ();
 
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
-            if (target == null ||
-                (!Menu.Item("ComboActive").GetValue<KeyBind>().Active &&
-                 !Menu.Item("HarassActive").GetValue<KeyBind>().Active))
+            if (target == null || (!Menu.Item("ComboActive").IsActive() && !Menu.Item("HarassActive").IsActive()))
             {
                 return;
             }
 
-            var mode = Menu.Item("ComboActive").GetValue<KeyBind>().Active ? "Combo" : "Harass";
+            var mode = Menu.Item("ComboActive").IsActive() ? "Combo" : "Harass";
 
             CastE(TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical), mode);
             CastQ(target, mode);
@@ -183,23 +185,26 @@ namespace TUrgot
 
         private static void SmartQ()
         {
-            if (!Q.IsReady() || !Menu.Item("AutoQ").GetValue<bool>())
+            if (!Q.IsReady() || !Menu.Item("AutoQ").IsActive())
             {
                 return;
             }
 
-            foreach (var obj in
+            var unit =
                 ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(obj => obj.IsValidTarget(Q2.Range) && obj.HasBuff("urgotcorrosivedebuff", true)))
+                    .FirstOrDefault(obj => obj.IsValidTarget(Q2.Range) && obj.HasBuff("urgotcorrosivedebuff"));
+
+            if (unit != null && unit.IsValid)
             {
+                Console.WriteLine("Q2");
                 W.Cast();
-                Q2.Cast(obj);
+                Q2.Cast(unit);
             }
         }
 
         private static void CastQ(Obj_AI_Base target, string mode)
         {
-            if (Q.IsReady() && Menu.Item(mode + "Q").GetValue<bool>() && target.IsValidTarget(Q.Range))
+            if (Q.IsReady() && Menu.Item(mode + "Q").IsActive() && target.IsValidTarget(Q.Range))
             {
                 Q.Cast(target);
             }
@@ -207,7 +212,7 @@ namespace TUrgot
 
         private static void CastE(Obj_AI_Base target, string mode)
         {
-            if (!E.IsReady() || !Menu.Item(mode + "E").GetValue<bool>())
+            if (!E.IsReady() || !Menu.Item(mode + "E").IsActive())
             {
                 return;
             }
@@ -227,7 +232,7 @@ namespace TUrgot
 
         private static bool IsManaLow()
         {
-            return Player.Mana < Player.MaxMana * Menu.Item("LaneClearQManaPercent").GetValue<Slider>().Value / 100;
+            return Player.ManaPercent < Menu.Item("LaneClearQManaPercent").GetValue<Slider>().Value;
         }
     }
 }
