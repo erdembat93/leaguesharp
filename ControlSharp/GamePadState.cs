@@ -39,7 +39,7 @@ namespace ControlSharp
             get { return Controller.IsConnected; }
         }
 
-        public void Vibrate(float leftMotor, float rightMotor)
+       /* public void Vibrate(float leftMotor, float rightMotor)
         {
             Controller.SetVibration(
                 new Vibration
@@ -47,7 +47,7 @@ namespace ControlSharp
                     LeftMotorSpeed = (ushort) (MathHelper.Saturate(leftMotor) * ushort.MaxValue),
                     RightMotorSpeed = (ushort) (MathHelper.Saturate(rightMotor) * ushort.MaxValue)
                 });
-        }
+        }*/
 
         public void Update()
         {
