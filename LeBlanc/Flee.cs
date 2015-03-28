@@ -31,7 +31,7 @@ namespace LeBlanc
 
             LocalMenu = flee;
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         private static Menu Menu
