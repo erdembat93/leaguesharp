@@ -42,7 +42,7 @@ namespace AutoKill
                 Smite.SetTargetted(.333f, 20);
             }
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
