@@ -33,7 +33,7 @@ namespace AutoLantern
             _menu.AddItem(new MenuItem("Hotkey", "Hotkey").SetValue(new KeyBind(32, KeyBindType.Press)));
             _menu.AddToMainMenu();
 
-            Game.OnGameUpdate += OnGameUpdate;
+            Game.OnUpdate += OnGameUpdate;
 
             Game.PrintChat("AutoLantern by Trees loaded.");
             _player = ObjectManager.Player;
