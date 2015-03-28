@@ -25,7 +25,7 @@ namespace AutoLeveler
                 VisibleCondition = sender => Key.LeftShift.IsKeyPressed() || Key.RightShift.IsKeyPressed()
             };
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Game.OnWndProc += Game_OnWndProc;
             AppDomain.CurrentDomain.DomainUnload += CurrentDomain_DomainUnload;
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
