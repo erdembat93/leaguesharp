@@ -12,8 +12,12 @@ namespace AutoLantern
     internal class Program
     {
         private const String LanternName = "ThreshLantern";
-        private static Menu _menu;
-        private static Obj_AI_Hero _player;
+        private static Menu Menu;
+
+        private static Obj_AI_Hero Player
+        {
+            get { return ObjectManager.Player; }
+        }
 
         private static void Main(string[] args)
         {
@@ -22,42 +26,47 @@ namespace AutoLantern
 
         private static void OnGameLoad(EventArgs args)
         {
+
             if (!ThreshInGame())
             {
                 return;
             }
 
-            _menu = new Menu("AutoLantern", "AutoLantern", true);
-            _menu.AddItem(new MenuItem("Auto", "Auto-Lantern at Low HP").SetValue(true));
-            _menu.AddItem(new MenuItem("Low", "Low HP Percent").SetValue(new Slider(20, 30, 5)));
-            _menu.AddItem(new MenuItem("Hotkey", "Hotkey").SetValue(new KeyBind(32, KeyBindType.Press)));
-            _menu.AddToMainMenu();
+            Menu = new Menu("AutoLantern", "AutoLantern", true);
+            Menu.AddItem(new MenuItem("Auto", "Auto-Lantern at Low HP").SetValue(true));
+            Menu.AddItem(new MenuItem("Low", "Low HP Percent").SetValue(new Slider(20, 30, 5)));
+            Menu.AddItem(new MenuItem("Hotkey", "Hotkey").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Menu.AddToMainMenu();
 
             Game.OnUpdate += OnGameUpdate;
 
             Game.PrintChat("AutoLantern by Trees loaded.");
-            _player = ObjectManager.Player;
+
+            foreach (var spell in Player.Spellbook.Spells.Where(spell => spell.Slot > SpellSlot.Recall && !spell.Name.Equals("BaseSpell")))
+            {
+                Game.PrintChat(spell.Slot.ToString() + " " + spell.Name);
+            }
         }
 
         private static void OnGameUpdate(EventArgs args)
         {
-            if ((!IsLow() || !_menu.Item("Auto").IsActive()) && (!_menu.Item("Hotkey").IsActive()))
+            if (!(IsLow() && Menu.Item("Auto").IsActive()) && !Menu.Item("Hotkey").IsActive())
             {
                 return;
             }
 
             var lantern =
-                ObjectHandler.Get<Obj_AI_Base>().Allies.FirstOrDefault(o => o.IsValid && o.Name.Equals(LanternName));
+                ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(o => o.IsValid && o.IsAlly && o.Name.Equals(LanternName));
             
-            if (lantern != null && lantern.IsValidTarget(500))
+            if (lantern != null && Player.Distance(lantern) <= 500 && Player.Spellbook.GetSpell((SpellSlot)  62).Name.Equals("LanternWAlly"))
             {
-                lantern.UseObject();
+                Player.Spellbook.CastSpell((SpellSlot) 62, lantern);
             }
         }
 
         private static bool IsLow()
         {
-            return _player.HealthPercentage() <= _menu.Item("Low").GetValue<Slider>().Value;
+            return Player.HealthPercentage() <= Menu.Item("Low").GetValue<Slider>().Value;
         }
 
         private static bool ThreshInGame()
