@@ -50,7 +50,7 @@ namespace TrainingBuddy
             {
                 var trinket = Player.Spellbook.GetSpell(SpellSlot.Trinket);
                 
-                if (trinket == null || !trinket.IsReady() || trinket.Ammo < 1)
+                if (trinket == null || !trinket.IsReady())
                 {
                     return;
                 }
