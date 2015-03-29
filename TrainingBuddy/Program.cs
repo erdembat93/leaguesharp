@@ -115,7 +115,7 @@ namespace TrainingBuddy
 
         public static void BuyRanduins()
         {
-            if (!Player.InShop())
+            if (!Player.IsDead && !Player.InShop())
             {
                 return;
             }
