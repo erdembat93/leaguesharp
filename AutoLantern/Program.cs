@@ -41,11 +41,7 @@ namespace AutoLantern
             Game.OnUpdate += OnGameUpdate;
 
             Game.PrintChat("AutoLantern by Trees loaded.");
-
-            foreach (var spell in Player.Spellbook.Spells.Where(spell => spell.Slot > SpellSlot.Recall && !spell.Name.Equals("BaseSpell")))
-            {
-                Game.PrintChat(spell.Slot.ToString() + " " + spell.Name);
-            }
+            Game.PrintChat("AutoLantern: You may have to click the lantern once manually.");
         }
 
         private static void OnGameUpdate(EventArgs args)
