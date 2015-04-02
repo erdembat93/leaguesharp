@@ -15,16 +15,16 @@ namespace TUrgot
     {
         public const string ChampName = "Urgot";
         public static Orbwalking.Orbwalker Orbwalker;
-
-        public static Obj_AI_Hero Player
-        {
-            get { return ObjectManager.Player; }
-        }
         public static List<Spell> SpellList = new List<Spell>();
         public static Spell Q, Q2, W, E;
         public static SpellDataInst Ignite;
         public static Menu Menu;
         public static readonly StringList HitchanceList = new StringList(new[] { "Low", "Medium", "High", "Very High" });
+
+        public static Obj_AI_Hero Player
+        {
+            get { return ObjectManager.Player; }
+        }
 
         private static void Main(string[] args)
         {
@@ -41,11 +41,11 @@ namespace TUrgot
             Q = new Spell(SpellSlot.Q, 1000);
             Q2 = new Spell(SpellSlot.Q, 1200);
             W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 1100);
+            E = new Spell(SpellSlot.E, 850);
 
             Q.SetSkillshot(0.2667f, 60f, 1600f, true, SkillshotType.SkillshotLine);
             Q2.SetSkillshot(0.3f, 60f, 1800f, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.2658f, 120f, 1500f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.2658f, 120f, 800f, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(Q2);
