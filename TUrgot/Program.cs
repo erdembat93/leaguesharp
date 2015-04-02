@@ -45,7 +45,7 @@ namespace TUrgot
 
             Q.SetSkillshot(0.2667f, 60f, 1600f, true, SkillshotType.SkillshotLine);
             Q2.SetSkillshot(0.3f, 60f, 1800f, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.2658f, 120f, 800f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.2658f, 120f, 1500f, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(Q2);
