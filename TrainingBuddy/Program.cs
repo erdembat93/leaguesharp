@@ -80,7 +80,7 @@ namespace TrainingBuddy
                 switch (s.SData.TargettingType)
                 {
                     case SpellDataTargetType.Self:
-                        Player.Spellbook.CastSpell(s.Slot, Player);
+                        Player.Spellbook.CastSpell(s.Slot);
                         break;
                     case SpellDataTargetType.Location:
                         Player.Spellbook.CastSpell(s.Slot, target.ServerPosition);
