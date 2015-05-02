@@ -13,6 +13,9 @@ namespace SkinHack
     {
         public static Menu Config;
         public static String DataDragonBase = "http://ddragon.leagueoflegends.com/";
+        public static bool HaveDied;
+        public static string CurrentModel;
+        public static int CurrentSkin;
 
         private static void Main(string[] args)
         {
@@ -21,6 +24,10 @@ namespace SkinHack
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+            CurrentModel = ObjectManager.Player.BaseSkinName;
+            Game.OnInput += Game_OnInput;
+            Game.OnUpdate += Game_OnUpdate;
+
             new Thread(
                 () =>
                 {
@@ -64,7 +71,9 @@ namespace SkinHack
                                                 p.SetValue(false);
                                             }
                                         });
-                                    hero.SetSkin(hero.ChampionName, (int) skin["num"]);
+                                    CurrentModel = hero.ChampionName;
+                                    CurrentSkin = (int) skin["num"];
+                                    hero.SetSkin(CurrentModel, CurrentSkin);
                                 }
                             };
                         }
@@ -72,8 +81,17 @@ namespace SkinHack
                     }
                     Config.AddToMainMenu();
                 }).Start();
+        }
 
-            Game.OnInput += Game_OnInput;
+        private static void Game_OnUpdate(EventArgs args)
+        {
+            if (!HaveDied || ObjectManager.Player.IsDead)
+            {
+                HaveDied = ObjectManager.Player.IsDead;
+                return;
+            }
+
+            ObjectManager.Player.SetSkin(CurrentModel, CurrentSkin);
         }
 
         private static void Game_OnInput(GameInputEventArgs args)
@@ -81,15 +99,18 @@ namespace SkinHack
             if (args.Input.StartsWith("/model"))
             {
                 args.Process = false;
-                ObjectManager.Player.SetSkin(args.Input.Replace("/model ", string.Empty), 0);
+                CurrentModel = args.Input.Replace("/model ", string.Empty);
+                CurrentSkin = 0;
+                ObjectManager.Player.SetSkin(CurrentModel, CurrentSkin);
                 return;
             }
 
             if (args.Input.StartsWith("/skin"))
             {
                 args.Process = false;
-                ObjectManager.Player.SetSkin(
-                    ObjectManager.Player.BaseSkinName, Convert.ToInt32(args.Input.Replace("/skin ", string.Empty)));
+                CurrentModel = ObjectManager.Player.BaseSkinName;
+                CurrentSkin = Convert.ToInt32(args.Input.Replace("/skin ", string.Empty));
+                ObjectManager.Player.SetSkin(CurrentModel, CurrentSkin);
             }
         }
     }
