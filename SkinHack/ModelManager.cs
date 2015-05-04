@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Web.Script.Serialization;
+using LeagueSharp;
 
 namespace SkinHack
 {
@@ -511,6 +513,26 @@ namespace SkinHack
         public static bool IsValidModel(this string model)
         {
             return ModelList.Contains(model);
+        }
+
+        public static void UpdateModel(this Obj_AI_Hero unit, string model, int skin = 0)
+        {
+            if (!model.IsValidModel())
+            {
+                return;
+            }
+
+            unit.SetSkin(model, skin);
+
+            if (unit.ChampionName.Equals("Lulu"))
+            {
+                var pix =
+                    ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(obj => obj.IsValid && obj.Name.Equals("RobotBuddy"));
+                if (pix != null && pix.IsValid)
+                {
+                    pix.SetSkin(pix.BaseSkinName, skin);
+                }
+            }
         }
 
         public static ArrayList GetSkins(string model)
