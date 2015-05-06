@@ -21,7 +21,7 @@ namespace SkinHack
             Model = unit.BaseSkinName;
             SkinIndex = unit.BaseSkinId;
             UpdateAdditionalObjects();
-         //   Obj_AI_Base.OnCreate += Obj_AI_Base_OnCreate;
+            //   Obj_AI_Base.OnCreate += Obj_AI_Base_OnCreate;
             Utility.DelayAction.Add(300, () => Game.OnUpdate += Game_OnUpdate);
         }
 
@@ -286,7 +286,7 @@ namespace SkinHack
 
             if (unit != null && unit.IsValid && !SpawnedUnits.Contains(unit) && !(unit is Obj_LampBulb))
             {
-                SpawnedUnits.Add((Obj_AI_Base)unit);
+                SpawnedUnits.Add((Obj_AI_Base) unit);
             }
         }
 
@@ -306,7 +306,8 @@ namespace SkinHack
             if (!Unit.BaseSkinName.Equals(model) || !Unit.BaseSkinId.Equals(skin))
             {
                 Console.WriteLine(
-                    "[CHAMP] {0} {1} => {2}  {3} => {4}", Unit.ChampionName, Unit.BaseSkinName, model, Unit.BaseSkinId, skin);
+                    "[CHAMP] {0} {1} => {2}  {3} => {4}", Unit.ChampionName, Unit.BaseSkinName, model, Unit.BaseSkinId,
+                    skin);
                 Unit.SetSkin(model, skin);
             }
 
@@ -328,7 +329,8 @@ namespace SkinHack
             {
                 if (obj.IsValid && !obj.BaseSkinId.Equals(skin))
                 {
-                    Console.WriteLine("[SPAWNED] {0} ({1})  {2} => {3}", obj.Name, obj.BaseSkinName, obj.BaseSkinId, skin);
+                    Console.WriteLine(
+                        "[SPAWNED] {0} ({1})  {2} => {3}", obj.Name, obj.BaseSkinName, obj.BaseSkinId, skin);
                     obj.SetSkin(obj.BaseSkinName, skin);
                 }
             }
