@@ -7,10 +7,9 @@ namespace SkinHack
 {
     internal class Program
     {
+        public static List<ModelUnit> PlayerList = new List<ModelUnit>();
+        public static ModelUnit Player;
         public static Menu Config;
-        public static bool HaveDied;
-        public static string CurrentModel;
-        public static int CurrentSkin;
 
         private static void Main(string[] args)
         {
@@ -19,27 +18,32 @@ namespace SkinHack
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            CurrentModel = ObjectManager.Player.BaseSkinName;
-            //CurrentSkin = ObjectManager.Player.BaseSkinId;
-
             Config = new Menu("SkinHack", "SkinHack", true);
 
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
             {
                 var champMenu = new Menu(hero.ChampionName, hero.ChampionName);
+                var modelUnit = new ModelUnit(hero);
+
+                PlayerList.Add(modelUnit);
+
+                if (hero.IsMe)
+                {
+                    Player = modelUnit;
+                }
+
                 foreach (Dictionary<string, object> skin in ModelManager.GetSkins(hero.ChampionName))
                 {
-                    var skinName = skin["name"].ToString();
-                    if (skinName.Equals("default"))
-                    {
-                        skinName = hero.ChampionName;
-                    }
+                    var skinName = skin["name"].ToString().Equals("default")
+                        ? hero.ChampionName
+                        : skin["name"].ToString();
                     var changeSkin = champMenu.AddItem(new MenuItem(skinName, skinName).SetValue(false));
 
                     if (changeSkin.IsActive())
                     {
-                        Utility.DelayAction.Add(500, () => hero.UpdateModel(hero.BaseSkinName, (int) skin["num"]));
+                        modelUnit.SetModel(hero.BaseSkinName, (int) skin["num"]);
                     }
+
                     changeSkin.ValueChanged += (s, e) =>
                     {
                         if (e.GetNewValue<bool>())
@@ -52,15 +56,7 @@ namespace SkinHack
                                         p.SetValue(false);
                                     }
                                 });
-
-                            if (hero.IsMe)
-                            {
-                                UpdateModel(hero.ChampionName, (int) skin["num"]);
-                            }
-                            else
-                            {
-                                hero.UpdateModel(hero.ChampionName, (int) skin["num"]);
-                            }
+                            modelUnit.SetModel(hero.ChampionName, (int) skin["num"]);
                         }
                     };
                 }
@@ -68,42 +64,7 @@ namespace SkinHack
             }
             Config.AddToMainMenu();
 
-            GameObject.OnCreate += Obj_AI_Base_OnCreate;
             Game.OnInput += Game_OnInput;
-            Game.OnUpdate += Game_OnUpdate;
-        }
-
-        private static void Obj_AI_Base_OnCreate(GameObject sender, EventArgs args)
-        {
-            var unit = sender as Obj_AI_Base;
-
-            if (unit == null || !unit.IsValid || !unit.Name.Equals(ObjectManager.Player.Name))
-            {
-                return;
-            }
-
-            unit.SetSkin(CurrentModel, CurrentSkin);
-        }
-
-        private static void UpdateModel(string model, int skin = 0)
-        {
-            CurrentModel = model;
-            CurrentSkin = skin;
-            ObjectManager.Player.UpdateModel(CurrentModel, CurrentSkin);
-        }
-
-        private static void Game_OnUpdate(EventArgs args)
-        {
-            if (!HaveDied || ObjectManager.Player.IsDead)
-            {
-                //eventually this will only be needed here
-                //CurrentSkin = ObjectManager.Player.BaseSkinId;
-                CurrentModel = ObjectManager.Player.BaseSkinName;
-                HaveDied = ObjectManager.Player.IsDead;
-                return;
-            }
-
-            ObjectManager.Player.UpdateModel(CurrentModel, CurrentSkin);
         }
 
         private static void Game_OnInput(GameInputEventArgs args)
@@ -111,14 +72,15 @@ namespace SkinHack
             if (args.Input.StartsWith("/model"))
             {
                 args.Process = false;
-                var model = args.Input.Replace("/model ", string.Empty);
+                var modelName = args.Input.Replace("/model ", string.Empty);
+                var model = modelName.GetValidModel();
 
-                if (!model.IsValidModel())
+                if (model == "" || !model.IsValidModel())
                 {
                     return;
                 }
 
-                UpdateModel(model);
+                Player.SetModel(model);
                 return;
             }
 
@@ -126,7 +88,7 @@ namespace SkinHack
             {
                 args.Process = false;
                 var skin = Convert.ToInt32(args.Input.Replace("/skin ", string.Empty));
-                UpdateModel(CurrentModel, skin);
+                Player.SetModel(Player.Unit.BaseSkinName, skin);
             }
         }
     }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Web.Script.Serialization;
-using LeagueSharp;
 
 namespace SkinHack
 {
@@ -67,6 +65,16 @@ namespace SkinHack
             "brush_D_SR",
             "brush_E_SR",
             "brush_F_SR",
+            "brush_HA_A",
+"brush_HA_B",
+"brush_HA_C",
+"brush_HA_D",
+"brush_HA_E",
+"brush_HA_F",
+"brush_HA_G",
+"brush_HA_H",
+"brush_HA_I",
+"brush_HA_J",
             "brush_SRU_A",
             "brush_SRU_B",
             "brush_SRU_C",
@@ -154,7 +162,16 @@ namespace SkinHack
             "HA_AP_ShpNorth",
             "HA_AP_ShpSouth",
             "HA_AP_Viking",
+            "HA_ChaosMinionMelee",
+"HA_ChaosMinionRanged",
+"HA_ChaosMinionSiege",
+"HA_ChaosMinionSuper",
             "HA_FB_HealthRelic",
+            
+"HA_OrderMinionMelee",
+"HA_OrderMinionRanged",
+"HA_OrderMinionSiege",
+"HA_OrderMinionSuper",
             "Hecarim",
             "Heimerdinger",
             "HeimerTBlue",
@@ -393,6 +410,7 @@ namespace SkinHack
             "Taric",
             "Teemo",
             "TeemoMushroom",
+            "TempMovableChar",
             "TestCube",
             "TestCubeRender",
             "TestCubeRender10Vision",
@@ -404,6 +422,7 @@ namespace SkinHack
             "TrundleWall",
             "Tryndamere",
             "TT_Brazier",
+            "TT_Bufplat_Chain",
             "TT_Buffplat_L",
             "TT_Buffplat_R",
             "TT_Chains_Bot_Lane",
@@ -515,24 +534,10 @@ namespace SkinHack
             return ModelList.Contains(model);
         }
 
-        public static void UpdateModel(this Obj_AI_Hero unit, string model, int skin = 0)
+        public static string GetValidModel(this string model)
         {
-            if (!model.IsValidModel())
-            {
-                return;
-            }
-
-            unit.SetSkin(model, skin);
-
-            if (unit.ChampionName.Equals("Lulu"))
-            {
-                var pix =
-                    ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(obj => obj.IsValid && obj.Name.Equals("RobotBuddy"));
-                if (pix != null && pix.IsValid)
-                {
-                    pix.SetSkin(pix.BaseSkinName, skin);
-                }
-            }
+            var index = ModelList.FindIndex(x => x.Equals(model, StringComparison.OrdinalIgnoreCase));
+            return index == -1 ? "" : ModelList[index];
         }
 
         public static ArrayList GetSkins(string model)
