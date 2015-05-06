@@ -305,25 +305,26 @@ namespace SkinHack
             // update hero
             if (!Unit.BaseSkinName.Equals(model) || !Unit.BaseSkinId.Equals(skin))
             {
-                Console.WriteLine(
-                    "[CHAMP] {0} {1} => {2}  {3} => {4}", Unit.ChampionName, Unit.BaseSkinName, model, Unit.BaseSkinId,
-                    skin);
+                //Console.WriteLine(
+               //     "[CHAMP] {0} {1} => {2}  {3} => {4}", Unit.ChampionName, Unit.BaseSkinName, model, Unit.BaseSkinId,
+                //    skin);
                 Unit.SetSkin(model, skin);
             }
 
             // update pet
             var pet = Unit.Pet as Obj_AI_Base;
 
-            if (pet != null && pet.IsValid)
+            if (pet != null && pet.IsValid && pet.IsVisible)
             {
                 var petModel = pet.Name.Equals(Unit.Name) ? model : pet.BaseSkinName; // for clones
                 if (!pet.BaseSkinName.Equals(petModel) || !pet.BaseSkinId.Equals(skin))
                 {
-                    Console.WriteLine("[PET] {0} ({1})  {2} => {3}", pet.Name, petModel, pet.BaseSkinId, skin);
+                    //Console.WriteLine("[PET] {0} ({1})  {2} => {3}", pet.Name, petModel, pet.BaseSkinId, skin);
                     pet.SetSkin(petModel, skin);
                 }
             }
 
+            /*
             // update spawned units
             foreach (var obj in SpawnedUnits)
             {
@@ -347,7 +348,7 @@ namespace SkinHack
             {
                 Console.WriteLine("[UPDATE] {0} ({1})  {2} => {3}", obj.Name, obj.BaseSkinName, obj.BaseSkinId, skin);
                 obj.SetSkin(obj.BaseSkinName, skin);
-            }
+            }*/
         }
 
         public void SetModel(string model, int skin = 0)
