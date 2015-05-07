@@ -32,6 +32,7 @@ namespace ItemDelayer
             Menu = new Menu("ItemDelayer", "ItemDelayer", true);
             Menu.AddItem(new MenuItem("Enabled", "Enabled").SetValue(true));
             Menu.AddItem(new MenuItem("Delay", "Delay (ms)").SetValue(new Slider(0, 200, 500)));
+            Menu.AddToMainMenu();
 
             Spellbook.OnCastSpell += Spellbook_OnCastSpell;
         }
