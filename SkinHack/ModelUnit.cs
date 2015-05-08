@@ -320,7 +320,7 @@ namespace SkinHack
                 if (!pet.BaseSkinName.Equals(petModel) || !pet.BaseSkinId.Equals(skin))
                 {
                     //Console.WriteLine("[PET] {0} ({1})  {2} => {3}", pet.Name, petModel, pet.BaseSkinId, skin);
-                    pet.SetSkin(petModel, skin);
+                   // pet.SetSkin(petModel, skin);
                 }
             }
 
