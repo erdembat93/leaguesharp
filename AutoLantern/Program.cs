@@ -42,7 +42,19 @@ namespace AutoLantern
 
             Game.PrintChat("AutoLantern by Trees loaded.");
             Game.PrintChat("AutoLantern: You may have to click the lantern once manually.");
+            Console.WriteLine("loaded lantern");
         }
+
+        private static SpellDataInst FindLantern()
+        {
+            foreach (SpellDataInst spelly in Player.Spellbook.Spells.Where(sp => sp.Name.Equals("LanternWAlly")))
+            {
+                Console.WriteLine(spelly.Name);
+                return spelly;
+            }
+            return null;
+        }
+
 
         private static void OnGameUpdate(EventArgs args)
         {
@@ -53,16 +65,20 @@ namespace AutoLantern
 
             var lantern =
                 ObjectManager.Get<Obj_AI_Base>().FirstOrDefault(o => o.IsValid && o.IsAlly && o.Name.Equals(LanternName));
-            
-            if (lantern != null && Player.Distance(lantern) <= 500 && Player.Spellbook.GetSpell((SpellSlot)  62).Name.Equals("LanternWAlly"))
+
+            if (lantern == null)
+                return;
+
+            SpellDataInst lant = FindLantern();
+            if (Player.Distance(lantern) <= 500 && lant != null)
             {
-                Player.Spellbook.CastSpell((SpellSlot) 62, lantern);
+                Player.Spellbook.CastSpell(lant.Slot, lantern);
             }
         }
 
         private static bool IsLow()
         {
-            return Player.HealthPercentage() <= Menu.Item("Low").GetValue<Slider>().Value;
+            return Player.HealthPercent <= Menu.Item("Low").GetValue<Slider>().Value;
         }
 
         private static bool ThreshInGame()
